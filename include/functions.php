@@ -292,11 +292,11 @@ function clearCommas($string){
 }
 
 function getProtocols($file, $field){
-	
-	global $board;
+
+	global $BC;
 	
 	$protocols = array();
-	$row = 1; //change this in order to get the header or not
+	$row = $BC['fromBoard'] ? 1 : 0; //change this in order to get the header or not
 	
 	if (($f = fopen($file, "r")) !== FALSE){
     while (($protocol = fgetcsv($f, 1000, "\t")) !== FALSE) {

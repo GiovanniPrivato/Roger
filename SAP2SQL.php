@@ -2,7 +2,7 @@
 include('include/config.php');
 include('include/functions.php');
 
-if($protocols = getProtocols($board['protocols_file'], 0)){
+if($protocols = getProtocols($BC['protocols_to_upload'], 0)){
 
 	clearFolder($path_SAP);
 
@@ -23,6 +23,3 @@ if($protocols = getProtocols($board['protocols_file'], 0)){
 //clearFolder($path_SAP);
 
 }
-
-
-?>

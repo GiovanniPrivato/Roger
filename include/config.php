@@ -1,5 +1,5 @@
 <?php
-// ----------------------------------- VERSION 2.0 - 08/01/2020 -------------------------------------------- //
+// ----------------------------------- VERSION 2.1 - 24/02/2021 -------------------------------------------- //
 define("CSV", "csv");
 define("SAP", "SAP");
 
@@ -16,12 +16,12 @@ $path_csv_processed = adjustPath($path_csv_processed);
 $path_SAP = adjustPath($path_SAP);
 $path_logs[CSV] = adjustPath($path_logs[CSV]);
 $path_logs[SAP] = adjustPath($path_logs[SAP]);
-$board['protocols_file'] = adjustPath($board['protocols_file']);
+$BC['protocols_to_upload'] = adjustPath($BC['protocols_to_upload']);
 $BC['protocols_file'] = adjustPath($BC['protocols_file']);
 $BC['extractionsFilesPath'] = adjustPath($BC['extractionsFilesPath']);
 
 function adjustPath($path){
-	$path = str_replace('\\', '/', $path);
+	$path = str_replace("\\", '/', $path);
 	$path = rtrim($path, '/');
 	$file_parts = pathinfo($path);
 
@@ -29,5 +29,3 @@ function adjustPath($path){
 	
 	return $path;
 }
-
-?>
