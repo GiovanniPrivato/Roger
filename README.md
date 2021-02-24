@@ -7,7 +7,7 @@ csv2SQL: Extract any csv file with TAB delimiter and find it loaded on SQL in a 
 SAP2SQL: Create any SAP protocol on Board Connector and load its data to SQL with just one Board flag.
 (JSON2SQL: coming soon)
 
-#INSTALLATION
+# INSTALLATION
 INSTALLATION REQUIRES 3 SIMPLE STEPS:
 
     1. Unzip the folder and place it in any given PATH.
@@ -19,15 +19,15 @@ INSTALLATION REQUIRES 3 SIMPLE STEPS:
         refreshSAPProtocols creates in PATH a txt to be read by Board with all names of SAP protocols. If you have multiple config files, you can create multiple refreshSAPProtocols.bat files changing config parameter.
         SAP2SQL requires an extraction from Board in the PATH, named Protocols_to_upload.txt with TAB delimiter, with the list of Protocols to be uploaded to SQL. If you have multiple config files, you can create multiple SAP2SQL.bat files changing config parameter.
 
-#Usage example
-##csv2SQL
+# Usage example
+## csv2SQL
 
     1. Put any csv file (directly from Board or manually) in the PATH\csv folder specified in config.
     2. Such files MUST have csv extensions and have a header.
     3. Run csv2SQL.bat to load such file(s) to SQL. Roger will create a table (dropping an already existing one) having the same name of the file, renaming with progressive number any similar field name.
     4. You’ll find processed files in the “PATH\csv_processed” specified in config folder once done.
 
-##SAP2SQL
+## SAP2SQL
 
     1. Run the refreshSAPProtocols.bat job from Board to refresh the file specified in config with SAP protocols list.
     2. Read the file with Board in an entity called SAP Protocols.
