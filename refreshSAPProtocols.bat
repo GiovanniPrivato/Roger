@@ -1,0 +1,1 @@
+[PATH]\php\php.exe [PATH]\refreshSCProtocols.php -c config_example
