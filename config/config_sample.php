@@ -1,5 +1,5 @@
 <?php
-$_PATH = "path/to/Roger/Dir";
+$_PATH = "path/to/config/dir";
 
 //SQL PARAMS
 $sql["sql"] = ""; //SQL host
