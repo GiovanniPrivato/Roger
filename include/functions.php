@@ -173,9 +173,10 @@ function uploadFileToSQL($file, $table)
 				}
 
 				writeLog("SUCCESS - FILE $file", getFileType($file));
+				
 			} catch (Exception $e) {
 
-				writeLog("ERROR - FILE $file - " . $e, getFileType($file));
+				writeLog("ERROR - FILE $file - " . $e->getMessage(), getFileType($file));
 			}
 		}
 
