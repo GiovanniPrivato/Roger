@@ -82,7 +82,13 @@ function uploadFileToSQL($file, $table)
 			try {
 
 				$fieldseparator = isCsv($file) ? $sql['CSVfieldseparator'] : $sql['SAPfieldseparator'];
-				$headerLine = getHeader($file);
+				// $headerLine = getHeader($file);
+				$i = 0;
+				$headerLine = preg_replace_callback('/(' . $fieldseparator . '(\r|\n|\r\n))|(' . $fieldseparator . '{2,})/m', function() use(&$i, $fieldseparator){	
+						$i++;
+						return $fieldseparator."Column$i".$fieldseparator;
+					}, getHeader($file));
+
 				$header = explode($fieldseparator, $headerLine);
 
 				$headerCount = array();
@@ -352,10 +358,10 @@ function checkFile($file)
 	}
 
 	//check if header is correctly addressed in csv - SAP is assumed correct
-	else if (isCsv($file) && preg_match('/(' . $separator . '(\r|\n|\r\n))|(' . $separator . '{2,})/m', getHeader($file, false))) {
-		writeLog('Incomplete Header for file ' . $file . ': all fields must have a non-empty label!', $type);
-		$result = false;
-	}
+	// else if (isCsv($file) && preg_match('/(' . $separator . '(\r|\n|\r\n))|(' . $separator . '{2,})/m', getHeader($file, false))) {
+	// 	//writeLog('Incomplete Header for file ' . $file . ': all fields must have a non-empty label!', $type);
+	// 	//$result = false;
+	// }
 
 	return $result;
 }
