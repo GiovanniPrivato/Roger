@@ -2,6 +2,7 @@
 // ----------------------------------- VERSION 2.2 - 22/07/2021 -------------------------------------------- //
 define("CSV", "csv");
 define("SAP", "SAP");
+define("JSON", "JSON");
 
 $options = getopt("c:");
 if(!isset($options['c'])) die('Config file not defined');
