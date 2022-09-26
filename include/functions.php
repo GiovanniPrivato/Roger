@@ -43,24 +43,7 @@ function BC_to_file($protocol, $file)
 
 	curl_setopt($ch, CURLOPT_WRITEFUNCTION, $callback);
 
-	/*
-		// eseguo la chiamata
-		$output = curl_exec($ch);
-		
-		$header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-		$header = substr($output, 0, $header_size);
-		$output = substr($output, $header_size);
-
-		//$output = clearCommas($output);
-		//$data = mb_convert_encoding($output, 'ISO-8859-1', 'UTF-8');
-		
-		if(substr($header, 9, 3) == "200") {
-			file_put_contents($file, $output);
-		}
-		*/
-		
 	curl_exec($ch);
-
 
 	// chiudo cURL
 	curl_close($ch);
@@ -72,6 +55,8 @@ function uploadFileToSQL($file, $table)
 {
 
 	global $sql;
+	
+	$table = preg_replace('/\s/', '_', $table); 
 
 	list($connection_result, $conn) = SQLConnect();
 
@@ -94,7 +79,13 @@ function uploadFileToSQL($file, $table)
 				$headerCount = array();
 
 				foreach ($header as $k => $h) {
-					$string = preg_replace('/[^\p{L}\p{N}]/u', '', $h); //remove special chars.
+					$string = preg_replace('/[^\p{L}\p{N}]/u', '', utf8_encode($h)); //remove special chars.
+					$unwanted_array = array(    'Š'=>'S', 'š'=>'s', 'Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E',
+                            'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I', 'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U',
+                            'Ú'=>'U', 'Û'=>'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss', 'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a', 'å'=>'a', 'æ'=>'a', 'ç'=>'c',
+                            'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o',
+                            'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y' );
+					$string = strtr( $string, $unwanted_array );
 					$string = strtoupper($string);
 
 					if (!isset($headerCount[$string])) {
@@ -103,7 +94,7 @@ function uploadFileToSQL($file, $table)
 					} else $header[$k] = $string . '_' . $headerCount[$string]++;
 				}
 
-				list($SQLFloatConvert, $OriginalFieldTypes) = getFieldTypes($file, $header);
+				list($SQLFloatConvert, $OriginalFieldTypes) = getFieldTypes($file, $header, $fieldseparator);
 				//$SQLFloatConvert = array();
 				$attempts = 0;
 				$count_field_types = array_count_values($OriginalFieldTypes);
@@ -121,7 +112,7 @@ function uploadFileToSQL($file, $table)
 
 					//runs the query
 					$sql_result = sqlsrv_query($conn, dropSQLTableScript($temp_table) . $createTableStatement . "
-						EXEC('BULK INSERT " . $temp_table . " from ''" . $file . "'' 
+						EXEC('BULK INSERT [dbo].[" . $temp_table . "] from ''" . $file . "'' 
 						with (FIRSTROW=2, FIELDTERMINATOR=''" . $fieldseparator . "'', ROWTERMINATOR=''\r\n'', CODEPAGE = ''ACP'')');");
 
 					//one more attempt done, check for errors
@@ -169,7 +160,7 @@ function uploadFileToSQL($file, $table)
 						}
 
 						//run SELECT INTO statement
-						$sql_convert_result = sqlsrv_query($conn, "drop table #TEMP_ORIGINALE;" . dropSQLTableScript($table) . "SELECT " . implode(", ", $select) . " INTO [" . $table . "] FROM [" . $temp_table . "]");
+						$sql_convert_result = sqlsrv_query($conn, /*"drop table #TEMP_ORIGINALE;" . */dropSQLTableScript($table) . "SELECT " . implode(", ", $select) . " INTO [" . $table . "] FROM [" . $temp_table . "]");
 					} else $sql_convert_result = sqlsrv_query($conn, dropSQLTableScript($table) . "SELECT * INTO [" . $table . "] FROM [" . $temp_table . "]");
 
 					$sql_convert_error = getSQLError();
@@ -190,7 +181,7 @@ function uploadFileToSQL($file, $table)
 	} else writeLog("Unable to connect to SQL: " . $conn, getFileType($file));
 }
 
-function getFieldTypes($file, $header)
+function getFieldTypes($file, $header, $fieldseparator)
 {
 
 	global $sql;
@@ -209,7 +200,7 @@ function getFieldTypes($file, $header)
 	} else {
 
 		if (($f = fopen($file, "r")) !== FALSE) {
-			while (($r = fgetcsv($f, 1000,  $sql['CSVfieldseparator'])) !== FALSE) {
+			while (($r = fgetcsv($f, 0, $fieldseparator)) !== FALSE) {
 				$row++;
 				if ($row == 1) {
 					continue;
@@ -243,7 +234,6 @@ function getFieldTypes($file, $header)
 
 function combineHeaderTypeFields($label, $fieldType)
 {
-
 	return "[" . $label . "] " . $fieldType;
 }
 
