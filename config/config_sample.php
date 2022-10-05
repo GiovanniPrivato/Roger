@@ -1,19 +1,22 @@
 <?php
-$_PATH = "path/to/config/dir";
+// $_PATH = "path/to/config/dir";
+$_PATH = "C:\Users\giovo\Documents\Tecnico\php\Roger";
 
 //SQL PARAMS
-$sql["sql"] = ""; //SQL host
-$sql["user"] = ""; //SQL username
-$sql["psw"] = ""; //SQL password
-$sql["db"] = ""; //SQL db - use different DB to run in parallel
+$sql["sql"] = "LAPTOP-QEDQUOM3"; //SQL host
+$sql["user"] = "giovanni"; //SQL username
+$sql["psw"] = "giovanni"; //SQL password
+$sql["db"] = "test"; //SQL db - use different DB to run in parallel
 $sql["SAPfieldseparator"] = ";"; //SQL separator for BULK SAP - do not touch this unless necessary
-$sql["CSVfieldseparator"] = "\t"; //SQL separator for BULK CSV - TAB by default - do not touch this unless necessary
-$sql["create_float_threshold"] = 0; //if =0 Roger skips float data type check and imports all data as varchar(255). If >0 Roger checks float data type values until threshold and tries to create table accordingly.
+$sql["CSVfieldseparator"] = ";"; //SQL separator for BULK CSV - TAB by default - do not touch this unless necessary
+$sql["create_float_threshold"] = 100; //if =0 Roger skips float data type check and imports all data as varchar(255). If >0 Roger checks float data type values until threshold and tries to create table accordingly.
+$sql["do_convert_leading_zeros"] = false; //if conversion threshold is >0 => if true Roger will attempt conversion to float values like 0100. If false, 0100 will remain varchar.
+$sql["batch_folder"] = "$_PATH/batch/"; //Roger will run each (if any) of the batch files available in the folder in sequential alphabetical order BEFORE the import.
+$sql["sql_folder"] = "$_PATH/sql/"; //Roger will run each (if any) of the sql scripts available in the folder in sequential alphabetical order AFTER the import.
 
 //CSV PARAMS
 $path_csv = "$_PATH/csv/"; //csv files - use different folders to run in parallel
 $path_csv_processed = "$_PATH/csv_processed/"; //csv processed files - use different folders to run in parallel
-
 
 //SAP CONNECTOR PARAMS
 $BC["url"] = "http://localhost:8097/"; //Board connector URL
@@ -31,3 +34,25 @@ $path_SAP = "$_PATH/files/"; //SAP temporary files - use different folders to ru
 //LOGS
 $path_logs[CSV] = "$_PATH/logs/";
 $path_logs[SAP] = "$_PATH/logs/";
+
+$auto_concat = [
+    [
+        'input_table_like' => 'input_%'
+        , 'final_table' => 'FINAL_TABLE'
+        , 'replace_field' => [
+            'FIELD_1'
+            , 'FIELD_2'
+            , 'FIELD_3'
+            , 'FIELD_4'
+            , 'FIELD_5',
+        ],
+    ],
+    [
+        'input_table_like' => 'input2_%'
+        , 'final_table' => 'FINAL_TABLE2'
+        , 'replace_field' => [
+            'FIELD_1'
+            , 'FIELD_2',
+        ],
+    ],
+];

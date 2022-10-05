@@ -1,26 +1,33 @@
 <?php
-include('include/config.php');
-include('include/functions.php');
+include 'include/config.php';
+include 'include/functions.php';
+include 'include/Roger.php';
 
-$files = glob($path_csv.'*.csv'); 
+$files = glob($path_csv . '*.csv');
 
-if($files){
+$roger = new Roger($sql, CSV);
 
-	foreach($files as $file){
-		
-		if(file_exists($file)){
-			
-			echo 'Updating '.basename($file).'...'.PHP_EOL;
-		
-			uploadFileToSQL($file, strtoupper(pathinfo($file)['filename']));
-		
-			rename($file, $path_csv_processed.basename($file));
-	
-		}
-		
-		
-	}
+//optionally runs batches before.
+$roger->runBatchFiles();
+
+if ($files) {
+
+    foreach ($files as $file) {
+
+        if (file_exists($file)) {
+
+            echo 'Updating ' . basename($file) . '...' . PHP_EOL;
+            $roger->upload2SQL($file, strtoupper(pathinfo($file)['filename']));
+            rename($file, $path_csv_processed . basename($file));
+
+        }
+
+    }
+
+    if (isset($auto_concat) && $auto_concat) {
+        $roger->autoConcat();
+    }
+    //optionally runs statements after.
+    $roger->runSQLStatements();
+
 }
-
-
-?>
