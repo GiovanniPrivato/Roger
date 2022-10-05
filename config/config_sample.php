@@ -1,6 +1,5 @@
 <?php
-// $_PATH = "path/to/config/dir";
-$_PATH = "C:\Users\giovo\Documents\Tecnico\php\Roger";
+$_PATH = "path/to/config/dir";
 
 //SQL PARAMS
 $sql["sql"] = "LAPTOP-QEDQUOM3"; //SQL host
