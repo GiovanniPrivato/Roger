@@ -38,7 +38,7 @@ $auto_concat = [
     [
         'input_table_like' => 'input_%' //imported table name LIKE condition
         , 'final_table' => 'FINAL_TABLE' //table to append data in
-        , 'replace_field' => [ //fields to make comparison against
+        , 'replace_field' => [ //fields to make comparison against => MAX 5 FIELDS
             'FIELD_1'
             , 'FIELD_2'
             , 'FIELD_3'
