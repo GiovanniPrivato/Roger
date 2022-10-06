@@ -99,23 +99,12 @@ class SapReader
         global $sql;
         global $BC;
 
-        // $string = str_replace('""', "$$**$$", $string);
-        //"(?:(?:(?:"")|[^"]).*?)*" => regex SAP quoted strings
-        //(?:("?)(?:(?:(?:"")|[^"])*?.*?)*\1)\K, => regex unquoted commas
-
         $string = str_replace($sql['SAPfieldseparator'], '', $string); //gets rid of the TAB.
         $string = preg_replace('/(?:("?)((?:(?:(?:"")|[^"])*?.*?)*)(?:\1))(' . $BC['fieldseparator'] . ')/i', "$2" . $sql['SAPfieldseparator'], $string);
-        // $string = str_replace($BC['fieldseparator'], $sql['SAPfieldseparator'], $string);
 
         $string = str_replace('""', '"', $string); //double quotes replacement
-
-        // $revised_string = str_replace('$$**$$', '""', $revised_string);
 
         return $string;
     }
 
-    private function isDownloadSuccessful()
-    {
-        return $this->lastErrorCode == "200";
-    }
 }
