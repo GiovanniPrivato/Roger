@@ -77,7 +77,7 @@ class Roger
 
                 //for each field to be checked against comma, try to select and convert. If no error, then it is float.
                 foreach ($SQLFloatConvert as $k => $field_to_float) {
-                    $select = $qb->select($temp_table, ['1'], ["TRY_CONVERT(float, REPLACE([$field_to_float],',','.')) IS NULL"]);
+                    $select = $qb->select($temp_table, ['1'], ["TRY_CONVERT(float, REPLACE([$field_to_float],',','.')) IS NULL", "$field_to_float IS NOT NULL"]);
                     $stmt = $this->conn->query($select);
                     if ($stmt->fetch() === false) {
                         $fields_do_convert[] = $field_to_float;
@@ -264,39 +264,39 @@ class Roger
 
     private function getFieldDataTypes(string $file, array $header)
     {
+        //init all as varchar
+        $field_type = array_map(fn($f) => 'varchar(255)', $header);
+
         if ($this->sql['create_float_threshold'] == 0) {
-
-            $field_type = array_map(fn($f) => 'varchar(255)', $header);
             return [[], $field_type];
-
         }
 
         $f = fopen($file, "r");
         $row = 0;
         $sql_convert = [];
         $processed = [];
+
         while (($r = fgetcsv($f, 0, $this->fieldseparator)) !== false) {
             $row++;
             if ($row === 1) {
                 continue;
             } //skip title
 
-            foreach ($header as $k => $h) {
+            foreach (array_filter($header, fn($h) => !in_array($h, $processed)) as $k => $h) {
 
-                //if not varchar yet, then continue below.
-                if (in_array($k, $processed)) {
+                if (!isset($r[$k]) || !$r[$k]) { //ignore nulls
                     continue;
                 }
+
                 //numeric with dot as decimal separator or empty cell
                 $regex = $this->sql['do_convert_leading_zeros'] ? '/^-?\d+(\.\d+)?$/' : '/^-?(?(?=0)0(\.\d+)|\d+(\.\d+)?)$/'; // do not convert with leading zeros
-                if (!in_array($k, $sql_convert) && (preg_match($regex, $r[$k])) || !$r[$k]) {
+                if (!in_array($k, $sql_convert) && (preg_match($regex, $r[$k]))) {
                     $field_type[$k] = 'float';
                     continue;
                 }
                 $regex = $this->sql['do_convert_leading_zeros'] ? '/^-?\d+(,\d+)$/' : '/^-?(?(?=0)0(\,\d+)|\d+(\,\d+))$/'; // do not convert with leading zeros
                 //numeric with comma as decimal separator --> need to convert to dot
                 if (preg_match($regex, $r[$k])) {
-
                     $field_type[$k] = 'varchar(255)';
                     $sql_convert[$k] = $h;
                     continue;
@@ -304,7 +304,7 @@ class Roger
 
                 //else varchar
                 $field_type[$k] = 'varchar(255)';
-                $processed[] = $k;
+                $processed[] = $h;
                 if (in_array($h, $sql_convert)) {
                     unset($sql_convert[$k]);
                 }
@@ -329,8 +329,11 @@ class Roger
         try {
             $this->connect();
             $qb = new QueryBuilder();
-            $this->conn->exec($qb->createStoredProcedure($auto_concat_procedure_name));
-            $this->conn->exec(sprintf($procedure, $qb->schema, $auto_concat_procedure_name));
+            $statement = sprintf($procedure, $qb->schema, $auto_concat_procedure_name, $qb->schema, $auto_concat_procedure_name, $qb->schema, $auto_concat_procedure_name);
+            $commands = $qb->splitSQLActions($statement); //clear multiline comments & split GO's
+            foreach ($commands as $c) {
+                $this->conn->exec($c);
+            }
         } catch (Exception $e) {
             $this->writeLog('PROCEDURE - ' . $e->getMessage(), );
         } finally {

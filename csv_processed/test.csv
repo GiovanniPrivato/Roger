@@ -1,6 +1,6 @@
-;Col_1;Col_2;;Col_3;;Col_4;
-test;4567;013;12;;t; ;123
-test;9999;13;12;;t; ;123
-test;9999;14,44;12;;t; ;123
-test;1234;12,14;12;;t; ;123
-test;1234;12,14;12;;t; ;123
+FIELD1	COL_1	COL_2	FIELD2	COL_3	FIELD3	COL_4	FIELD4
+test	4567	13	12		t	 	123
+test	9999	13	12		t	 	123
+test	9999	14,44	12		t	 	123
+test	1234	12,14	12		t	 	123
+test	1234	12,14	12		t	 	123

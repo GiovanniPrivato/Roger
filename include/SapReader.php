@@ -85,7 +85,8 @@ class SapReader
         if (strlen($this->header) > $header_size) {
             $this->header = substr($this->header, 0, $header_size);
             $this->header_downloaded = true;
-            $this->lastErrorCode = preg_match('/\d{3}/', $this->header);
+            preg_match('/\d{3}/', $this->header, $matches);
+            $this->lastErrorCode = $matches[0];
             return;
         }
 

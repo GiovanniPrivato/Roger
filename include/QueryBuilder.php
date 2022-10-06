@@ -12,7 +12,7 @@ class QueryBuilder
 
     public function select(string $table, array $fields = ['*'], array $where = [])
     {
-        $whereCondition = $where ? 'WHERE ' . implode('AND', $where) : '';
+        $whereCondition = $where ? 'WHERE ' . implode(' AND ', $where) : '';
         return sprintf("SELECT %s FROM [%s].[%s] %s", implode(", ", $fields), $this->schema, $table, $whereCondition);
 
     }
