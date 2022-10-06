@@ -34,7 +34,7 @@ class QueryBuilder
 
     public function createTable(string $table, array $fields, array $datatypes, bool $isTemp = false)
     {
-        $table_fields = array_map('combineHeaderTypeFields', $fields, $datatypes);
+        $table_fields = array_map(fn($f, $d) => "[" . $f . "] " . $d, $fields, $datatypes);
 
         $drop = $isTemp ? '' : $this->dropTable($table);
         return sprintf("%s CREATE TABLE [%s].[%s] (%s);", $drop, $this->schema, $table, implode(", ", $table_fields));
@@ -68,11 +68,6 @@ class QueryBuilder
         $command = preg_replace('/\/\*(?:[\w\W])*?\*\//im', '', $sqlCommand); //delete multiline comments
         $commands = preg_split('/(^(go)[\s,;])|(^(go)$)|(;go)|(;)\s*(go)/im', $command);
         return $commands;
-    }
-
-    private function combineHeaderTypeFields(string $label, string $fieldType)
-    {
-        return "[" . $label . "] " . $fieldType;
     }
 
 }

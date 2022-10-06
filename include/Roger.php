@@ -94,10 +94,10 @@ class Roger
 
             }
 
-            $this->writeLog("FILE $file", 'SUCCESS');
+            $this->writeLog("FILE - $file", 'SUCCESS');
 
         } catch (Exception $e) {
-            $this->writeLog($e->getMessage());
+            $this->writeLog("FILE - " . $e->getMessage());
         } finally {
             $this->disconnect();
         }
@@ -106,7 +106,12 @@ class Roger
     public function autoConcat()
     {
         global $auto_concat;
+        global $activate_auto_concat;
         global $auto_concat_procedure_name;
+
+        if (!$activate_auto_concat) {
+            return;
+        }
 
         $this->installTableConsolidation();
 
@@ -133,7 +138,8 @@ class Roger
                 $this->connect();
                 $qb = new QueryBuilder();
                 $dummy_params = array_fill(0, 5 - sizeof($ac['replace_field']), '1');
-                $params = [$ac['input_table_like'], $ac['final_table'], ...array_values($ac['replace_field'])];
+                $fieldNames = array_map(fn($f) => $this->cleanFieldName($f), $ac['replace_field']);
+                $params = [$ac['input_table_like'], $ac['final_table'], ...array_values($fieldNames)];
                 $exec_statement = $qb->execStoredProcedure($auto_concat_procedure_name, array_merge($params, $dummy_params), true);
                 $this->conn->exec($exec_statement);
                 $this->writeLog('PROCEDURE - Autoconcat successful with params ' . implode(', ', $params), 'SUCCESS');
@@ -162,9 +168,9 @@ class Roger
 
             try {
                 $res = shell_exec($s);
-                $this->writeLog("BATCH " . basename($s), 'SUCCESS');
+                $this->writeLog("BATCH - " . basename($s), 'SUCCESS');
             } catch (Exception $e) {
-                $this->writeLog("BATCH " . basename($s) . " - " . $e->getMessage());
+                $this->writeLog("BATCH - " . basename($s) . " - " . $e->getMessage());
             }
 
         }
@@ -192,9 +198,9 @@ class Roger
                 foreach ($commands as $c) {
                     $sql_result = $this->conn->query($c);
                 }
-                $this->writeLog("SCRIPT " . basename($s), 'SUCCESS');
+                $this->writeLog("SCRIPT - " . basename($s), 'SUCCESS');
             } catch (Exception $e) {
-                $this->writeLog("SCRIPT " . basename($s) . " - " . $e->getMessage());
+                $this->writeLog("SCRIPT - " . basename($s) . " - " . $e->getMessage());
             } finally {
                 $sql_result = null;
                 $this->disconnect();
@@ -228,14 +234,7 @@ class Roger
         $headerCount = array();
 
         foreach ($header as $k => $h) {
-            $string = preg_replace('/[^\p{L}\p{N}_]/u', '', utf8_encode($h)); //remove special chars.
-            $unwanted_array = array('Š' => 'S', 'š' => 's', 'Ž' => 'Z', 'ž' => 'z', 'À' => 'A', 'Á' => 'A', 'Â' => 'A', 'Ã' => 'A', 'Ä' => 'A', 'Å' => 'A', 'Æ' => 'A', 'Ç' => 'C', 'È' => 'E', 'É' => 'E',
-                'Ê' => 'E', 'Ë' => 'E', 'Ì' => 'I', 'Í' => 'I', 'Î' => 'I', 'Ï' => 'I', 'Ñ' => 'N', 'Ò' => 'O', 'Ó' => 'O', 'Ô' => 'O', 'Õ' => 'O', 'Ö' => 'O', 'Ø' => 'O', 'Ù' => 'U',
-                'Ú' => 'U', 'Û' => 'U', 'Ü' => 'U', 'Ý' => 'Y', 'Þ' => 'B', 'ß' => 'Ss', 'à' => 'a', 'á' => 'a', 'â' => 'a', 'ã' => 'a', 'ä' => 'a', 'å' => 'a', 'æ' => 'a', 'ç' => 'c',
-                'è' => 'e', 'é' => 'e', 'ê' => 'e', 'ë' => 'e', 'ì' => 'i', 'í' => 'i', 'î' => 'i', 'ï' => 'i', 'ð' => 'o', 'ñ' => 'n', 'ò' => 'o', 'ó' => 'o', 'ô' => 'o', 'õ' => 'o',
-                'ö' => 'o', 'ø' => 'o', 'ù' => 'u', 'ú' => 'u', 'û' => 'u', 'ý' => 'y', 'þ' => 'b', 'ÿ' => 'y');
-            $string = strtr($string, $unwanted_array);
-            $string = strtoupper($string);
+            $string = $this->cleanFieldName($h);
 
             if (!isset($headerCount[$string])) {
                 $headerCount[$string] = 1;
@@ -248,6 +247,19 @@ class Roger
 
         return $header;
 
+    }
+
+    private function cleanFieldName(string $field)
+    {
+        $string = preg_replace('/[^\p{L}\p{N}_]/u', '', utf8_encode($field)); //remove special chars.
+        $unwanted_array = array('Š' => 'S', 'š' => 's', 'Ž' => 'Z', 'ž' => 'z', 'À' => 'A', 'Á' => 'A', 'Â' => 'A', 'Ã' => 'A', 'Ä' => 'A', 'Å' => 'A', 'Æ' => 'A', 'Ç' => 'C', 'È' => 'E', 'É' => 'E',
+            'Ê' => 'E', 'Ë' => 'E', 'Ì' => 'I', 'Í' => 'I', 'Î' => 'I', 'Ï' => 'I', 'Ñ' => 'N', 'Ò' => 'O', 'Ó' => 'O', 'Ô' => 'O', 'Õ' => 'O', 'Ö' => 'O', 'Ø' => 'O', 'Ù' => 'U',
+            'Ú' => 'U', 'Û' => 'U', 'Ü' => 'U', 'Ý' => 'Y', 'Þ' => 'B', 'ß' => 'Ss', 'à' => 'a', 'á' => 'a', 'â' => 'a', 'ã' => 'a', 'ä' => 'a', 'å' => 'a', 'æ' => 'a', 'ç' => 'c',
+            'è' => 'e', 'é' => 'e', 'ê' => 'e', 'ë' => 'e', 'ì' => 'i', 'í' => 'i', 'î' => 'i', 'ï' => 'i', 'ð' => 'o', 'ñ' => 'n', 'ò' => 'o', 'ó' => 'o', 'ô' => 'o', 'õ' => 'o',
+            'ö' => 'o', 'ø' => 'o', 'ù' => 'u', 'ú' => 'u', 'û' => 'u', 'ý' => 'y', 'þ' => 'b', 'ÿ' => 'y');
+        $string = strtr($string, $unwanted_array);
+        $string = strtoupper($string);
+        return $string;
     }
 
     private function getFieldDataTypes(string $file, array $header)
@@ -342,7 +354,7 @@ class Roger
         $this->conn = null;
     }
 
-    private function writeLog($text, $errorType = 'ERROR')
+    public function writeLog($text, $errorType = 'ERROR')
     {
 
         global $path_logs;

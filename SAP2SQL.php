@@ -7,7 +7,7 @@ include 'include/Roger.php';
 $sap = new SapReader($BC);
 $roger = new Roger($sql, SAP);
 
-//optionally runs batches before.
+//optionally runs batch files before.
 $roger->runBatchFiles();
 
 if ($protocols = getProtocols($BC['protocols_to_upload'], 0)) {
@@ -20,9 +20,13 @@ if ($protocols = getProtocols($BC['protocols_to_upload'], 0)) {
 
         echo 'Updating ' . $p . '...' . PHP_EOL;
 
-        $sap->downloadData($p, $file);
+        list($success, $code) = $sap->downloadData($p, $file);
 
-        $roger->upload2SQL($file, $p);
+        if ($success) {
+            $roger->upload2SQL($file, $p);
+        } else {
+            $roger->writeLog("SAP CONNECTOR - Extraction of protocol $p failed with code $code", 'ERROR');
+        }
 
         unlink($file);
 

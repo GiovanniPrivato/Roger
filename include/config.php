@@ -17,6 +17,7 @@ if (substr($config_file, -4) == '.php') {
 include dirname(__DIR__) . '/config/' . $config_file . '.php';
 
 $auto_concat_procedure_name = 'roger_auto_consolidate_table';
+$sql["SAPfieldseparator"] = "\t";
 
 $path_csv = adjustPath($path_csv);
 $path_csv_processed = adjustPath($path_csv_processed);

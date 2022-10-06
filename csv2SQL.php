@@ -7,7 +7,7 @@ $files = glob($path_csv . '*.csv');
 
 $roger = new Roger($sql, CSV);
 
-//optionally runs batches before.
+//optionally runs batch files before.
 $roger->runBatchFiles();
 
 if ($files) {
