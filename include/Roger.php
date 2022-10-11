@@ -158,7 +158,7 @@ class Roger
     {
         global $sql;
 
-        $scripts = glob($sql['batch_folder'] . '/*.bat');
+        $scripts = glob($sql['batch_folder'] . '*.bat');
 
         if (!$scripts) {
             return;
@@ -181,7 +181,7 @@ class Roger
     {
         global $sql;
 
-        $scripts = glob($sql['sql_folder'] . '/*.sql');
+        $scripts = glob($sql['sql_folder'] . '*.sql');
 
         if (!$scripts) {
             return;

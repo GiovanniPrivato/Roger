@@ -25,6 +25,7 @@ $path_SAP = adjustPath($path_SAP);
 $path_logs[CSV] = adjustPath($path_logs[CSV]);
 $path_logs[SAP] = adjustPath($path_logs[SAP]);
 $sql['sql_folder'] = adjustPath($sql['sql_folder']);
+$sql['batch_folder'] = adjustPath($sql['batch_folder']);
 $BC['protocols_to_upload'] = adjustPath($BC['protocols_to_upload']);
 $BC['protocols_file'] = adjustPath($BC['protocols_file']);
 $BC['extractionsFilesPath'] = adjustPath($BC['extractionsFilesPath']);

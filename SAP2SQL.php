@@ -4,11 +4,11 @@ include 'include/functions.php';
 include 'include/SapReader.php';
 include 'include/Roger.php';
 
-$sap = new SapReader($BC);
 $roger = new Roger($sql, SAP);
-
 //optionally runs batch files before.
 $roger->runBatchFiles();
+
+$sap = new SapReader($BC);
 
 if ($protocols = getProtocols($BC['protocols_to_upload'], 0)) {
 

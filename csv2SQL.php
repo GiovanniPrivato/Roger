@@ -3,12 +3,11 @@ include 'include/config.php';
 include 'include/functions.php';
 include 'include/Roger.php';
 
-$files = glob($path_csv . '*.csv');
-
 $roger = new Roger($sql, CSV);
-
 //optionally runs batch files before.
 $roger->runBatchFiles();
+
+$files = glob($path_csv . '*.csv');
 
 if ($files) {
 
