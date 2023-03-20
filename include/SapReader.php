@@ -4,7 +4,7 @@ class SapReader
 {
     private $BC;
     private $header;
-    private $lastErrorCode;
+    private $lastErrorCode = "200";
     private $header_downloaded;
 
     public function __construct(array $BC)
@@ -14,7 +14,7 @@ class SapReader
 
     public function downloadData($protocol, $file)
     {
-        $this->header_downloaded = false;
+        $this->header_downloaded = true;
         $buffer = '';
         $count = 0;
 
@@ -27,7 +27,7 @@ class SapReader
         curl_setopt($ch, CURLOPT_URL, sprintf('%s?name=%s', $this->BC['url'], $protocol));
 
         // no headers
-        curl_setopt($ch, CURLOPT_HEADER, 1);
+        // curl_setopt($ch, CURLOPT_HEADER, 1);
 
         // remote content not passed to print
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -38,17 +38,17 @@ class SapReader
 
             $stringLen = strlen($str);
 
-            if (!$this->header_downloaded) {
-                $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-                $buffer_header = substr($this->header, $header_size, strlen($this->header) - $header_size - 1);
-                $this->extractHeader($str, $header_size);
-                if ($this->header_downloaded) {
-                    $str = $buffer_header . $str;
-                } else {
-                    return $stringLen;
-                }
+            // if (!$this->header_downloaded) {
+            //     $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+            //     $buffer_header = substr($this->header, $header_size, strlen($this->header) - $header_size - 1);
+            //     $this->extractHeader($str, $header_size);
+            //     if ($this->header_downloaded) {
+            //         $str = $buffer_header . $str;
+            //     } else {
+            //         return $stringLen;
+            //     }
 
-            }
+            // }
 
             $lines = explode("\r\n", $str);
 

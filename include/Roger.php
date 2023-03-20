@@ -9,12 +9,14 @@ class Roger
     private $conn;
     private $type;
     private $fieldseparator;
+    private $rowterminator;
 
     public function __construct(array $sql, string $type)
     {
         $this->sql = $sql;
         $this->type = $type;
         $this->fieldseparator = $this->isCsv() ? $sql['CSVfieldseparator'] : $sql['SAPfieldseparator'];
+        $this->rowterminator = $this->isCsv() ? $sql['CSVrowterminator'] : '\r\n';
     }
 
     public function upload2SQL(string $file, string $table)
@@ -44,7 +46,7 @@ class Roger
                     $lastError = null;
                     $this->connect();
                     $create_temp_stmt = $qb->createTable($temp_table, $header, $originalFieldTypes, $SQLFloatConvert ? true : false);
-                    $bulk_insert_stmt = $qb->bulkInsert($temp_table, $file, $this->fieldseparator);
+                    $bulk_insert_stmt = $qb->bulkInsert($temp_table, $file, $this->fieldseparator, $this->rowterminator);
                     $this->conn->exec($create_temp_stmt);
                     $this->conn->exec($bulk_insert_stmt);
                     $mustRun = false; //to exit loop

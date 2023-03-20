@@ -7,6 +7,7 @@ $sql["user"] = ""; //SQL username
 $sql["psw"] = ""; //SQL password
 $sql["db"] = ""; //SQL db - use different DB to run in parallel
 $sql["CSVfieldseparator"] = ";"; //SQL separator for BULK CSV - TAB by default - do not touch this unless necessary
+$sql["CSVrowterminator"] = "\r\n"; //SQL separator for BULK CSV - \r\n by default - do not touch this unless necessary
 $sql["create_float_threshold"] = 0; //if =0 Roger skips float data type check and imports all data as varchar(255). If >0 Roger checks float data type values until threshold and tries to create table accordingly.
 $sql["do_convert_leading_zeros"] = false; //if conversion threshold is >0 => if true Roger will attempt conversion to float values like 0100. If false, 0100 will remain varchar.
 $sql["batch_folder"] = "$_PATH/batch/"; //Roger will run each (if any) of the batch files available in the folder in sequential alphabetical order BEFORE any import (regardless import itself).
