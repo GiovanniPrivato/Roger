@@ -12,7 +12,7 @@ class SapReader
         $this->BC = $BC;
     }
 
-    public function downloadData($protocol, $file)
+    public function downloadData($protocol, $file, $params)
     {
         $this->header_downloaded = true;
         $buffer = '';
@@ -22,9 +22,21 @@ class SapReader
 
         // init cURL
         $ch = curl_init();
+        $protocolFinal = preg_replace_callback(
+            '/@([^@]+)/i',
+            function ($v) use (&$params, $protocol) {
+                if (!isset($params[$v[1]])) {
+                    throw new Exception("Missing $v[1] param for protocol $protocol");
+                }
+                return sprintf('&%s=%s', $v[1], $params[$v[1]]);
+            },
+            $protocol
+        );
+
+        echo 'Updating ' . $protocolFinal . '...' . PHP_EOL;
 
         // open SAP Connector protocol
-        curl_setopt($ch, CURLOPT_URL, sprintf('%s?name=%s', $this->BC['url'], $protocol));
+        curl_setopt($ch, CURLOPT_URL, sprintf('%s?name=%s', $this->BC['url'], $protocolFinal));
 
         // no headers
         // curl_setopt($ch, CURLOPT_HEADER, 1);
@@ -100,7 +112,9 @@ class SapReader
         global $BC;
 
         $string = str_replace($sql['SAPfieldseparator'], '', $string); //gets rid of the TAB.
-        $string = preg_replace('/(?:("?)((?:(?:(?:"")|[^"])*?.*?)*)(?:\1))(' . $BC['fieldseparator'] . ')/i', "$2" . $sql['SAPfieldseparator'], $string);
+        $string = preg_replace_callback('/(?:("?)((?:(?:(?:"")|[^"])*?.*?)*)(?:\1))(?:(' . $BC['fieldseparator'] . ')|\v)/im', function ($m) use ($sql) {
+            return isset($m[3]) ? $m[2] . $sql['SAPfieldseparator'] : preg_replace('/"(.*)"/', "$1", $m[0]);
+        }, $string);
 
         $string = str_replace('""', '"', $string); //double quotes replacement
 

@@ -18,9 +18,7 @@ if ($protocols = getProtocols($BC['protocols_to_upload'], 0)) {
 
         $file = $path_SAP . $p . '.txt';
 
-        echo 'Updating ' . $p . '...' . PHP_EOL;
-
-        list($success, $code) = $sap->downloadData($p, $file);
+        list($success, $code) = $sap->downloadData($p, $file, $theo_options);
 
         if ($success) {
             $roger->upload2SQL($file, $p);

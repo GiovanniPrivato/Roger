@@ -1,10 +1,11 @@
 <?php
-// ----------------------------------- VERSION 4.1 - 11/10/2022 -------------------------------------------- //
+// ----------------------------------- VERSION 4.2.1 - 31/03/2023 -------------------------------------------- //
 define("CSV", "csv");
 define("SAP", "SAP");
 define("JSON", "JSON");
 
 $options = getopt("c:");
+
 if (!isset($options['c'])) {
     die('Config file not defined');
 }
@@ -13,6 +14,12 @@ $config_file = $options['c'];
 if (substr($config_file, -4) == '.php') {
     $config_file = rtrim($config_file, '.php');
 }
+
+//collecting Theobald options (if any)
+unset($argv[0]);
+$argv = array_chunk($argv, 2);
+$theo_options = array_combine(array_map(fn($v) => preg_replace('/^-+/i', '', $v), array_column($argv, 0)), array_column($argv, 1));
+unset($theo_options['c']);
 
 include dirname(__DIR__) . '/config/' . $config_file . '.php';
 
