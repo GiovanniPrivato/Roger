@@ -16,12 +16,12 @@ if ($protocols = getProtocols($BC['protocols_to_upload'], 0)) {
 
     foreach ($protocols as $p) {
 
-        $file = $path_SAP . $p . '.txt';
+        // $file = $path_SAP . $p . '.txt';
 
-        list($success, $code) = $sap->downloadData($p, $file, $theo_options);
+        list($success, $code, $file) = $sap->downloadData($p, $path_SAP, $theo_options);
 
         if ($success) {
-            $roger->upload2SQL($file, $p);
+            $roger->upload2SQL($file, pathinfo($file)['filename']);
         } else {
             $roger->writeLog("SAP CONNECTOR - Extraction of protocol $p failed with code $code", 'ERROR');
         }

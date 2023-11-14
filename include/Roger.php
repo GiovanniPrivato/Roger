@@ -16,7 +16,7 @@ class Roger
         $this->sql = $sql;
         $this->type = $type;
         $this->fieldseparator = $this->isCsv() ? $sql['CSVfieldseparator'] : $sql['SAPfieldseparator'];
-        $this->rowterminator = $this->isCsv() ? $sql['CSVrowterminator'] : '\r\n';
+        $this->rowterminator = $this->isCsv() ? $sql['CSVrowterminator'] : $sql['SAProwterminator'];
     }
 
     public function upload2SQL(string $file, string $table)
@@ -140,7 +140,7 @@ class Roger
                 $this->connect();
                 $qb = new QueryBuilder();
                 $dummy_params = array_fill(0, 5 - sizeof($ac['replace_field']), '1');
-                $fieldNames = array_map(fn($f) => $this->cleanFieldName($f), $ac['replace_field']);
+                $fieldNames = array_map(fn($f) => '[' . $this->cleanFieldName($f) . ']', $ac['replace_field']);
                 $params = [$ac['input_table_like'], $ac['final_table'], ...array_values($fieldNames)];
                 $exec_statement = $qb->execStoredProcedure($auto_concat_procedure_name, array_merge($params, $dummy_params), true);
                 $this->conn->exec($exec_statement);
@@ -231,6 +231,8 @@ class Roger
         }, $headerLine);
 
         $headerLine = ltrim($headerLine, $this->fieldseparator);
+        $bom = pack('H*', 'EFBBBF');
+        $headerLine = preg_replace("/^$bom/", '', $headerLine);
         $header = explode($this->fieldseparator, $headerLine);
 
         $headerCount = array();

@@ -1,5 +1,5 @@
 <?php
-// ----------------------------------- VERSION 4.2.1 - 31/03/2023 -------------------------------------------- //
+// ----------------------------------- VERSION 4.2.3 - 27/07/2023 -------------------------------------------- //
 define("CSV", "csv");
 define("SAP", "SAP");
 define("JSON", "JSON");
@@ -25,6 +25,7 @@ include dirname(__DIR__) . '/config/' . $config_file . '.php';
 
 $auto_concat_procedure_name = 'roger_auto_consolidate_table';
 $sql["SAPfieldseparator"] = "\t";
+$sql['SAProwterminator'] = "\r\n";
 
 $path_csv = adjustPath($path_csv);
 $path_csv_processed = adjustPath($path_csv_processed);

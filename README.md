@@ -1,13 +1,14 @@
 # Roger
+
 Roger is a ready-to-use package that makes csv or SAP data flowing to SQL with no effort!
 
 Two modules are included (you can of course use both):
 
 csv2SQL: Extract any csv file with TAB delimiter and find it loaded on SQL in a table having the name of your file.
 SAP2SQL: Create any SAP protocol on Board Connector and load its data to SQL with just one Board flag.
-(JSON2SQL: coming soon)
 
 # INSTALLATION
+
 INSTALLATION REQUIRES 3 SIMPLE STEPS:
 
     1. Unzip the folder and place it in any given PATH.
@@ -20,6 +21,7 @@ INSTALLATION REQUIRES 3 SIMPLE STEPS:
         SAP2SQL requires an extraction from Board in the PATH, named Protocols_to_upload.txt with TAB delimiter, with the list of Protocols to be uploaded to SQL. If you have multiple config files, you can create multiple SAP2SQL.bat files changing config parameter.
 
 # Usage example
+
 ## csv2SQL
 
     1. Put any csv file (directly from Board or manually) in the PATH\csv folder specified in config.
@@ -34,4 +36,3 @@ INSTALLATION REQUIRES 3 SIMPLE STEPS:
     3. Prepare a flag cube to check off the protocols to be loaded up to SQL.
     4. Extract the cube in the specified PATH in the config file.
     5. Run SAP2SQL. Roger will create a table (dropping an already existing one) having the same name of the SAP protocol, renaming with progressive number any similar field name.
-

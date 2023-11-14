@@ -12,13 +12,11 @@ class SapReader
         $this->BC = $BC;
     }
 
-    public function downloadData($protocol, $file, $params)
+    public function downloadData($protocol, $path, $params)
     {
         $this->header_downloaded = true;
         $buffer = '';
         $count = 0;
-
-        $fp = fopen($file, 'w');
 
         // init cURL
         $ch = curl_init();
@@ -32,6 +30,10 @@ class SapReader
             },
             $protocol
         );
+
+        $file = $path . preg_replace('/(&.+?\=)/i', '_', $protocolFinal) . '.txt';
+
+        $fp = fopen($file, 'w');
 
         echo 'Updating ' . $protocolFinal . '...' . PHP_EOL;
 
@@ -87,7 +89,7 @@ class SapReader
         curl_close($ch);
         fclose($fp);
 
-        return [$this->lastErrorCode == "200", $this->lastErrorCode];
+        return [$this->lastErrorCode == "200", $this->lastErrorCode, $file];
 
     }
 
