@@ -1,0 +1,1 @@
+C:\Users\giovo\Documents\Tecnico\php\Roger\php\php.exe C:\Users\giovo\Documents\Tecnico\php\Roger\encrypt\index.php

@@ -34,7 +34,7 @@ $path_SAP = "$_PATH/files/"; //SAP temporary files - use different folders to ru
 $path_logs[CSV] = "$_PATH/logs/";
 $path_logs[SAP] = "$_PATH/logs/";
 
-$activate_auto_concat = false; //activate autoconcatenation function Y/N
+$activate_auto_concat = true; //activate autoconcatenation function Y/N
 $auto_concat = [
     [
         'input_table_like' => 'input_%' //imported table name LIKE condition
