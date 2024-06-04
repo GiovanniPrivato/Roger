@@ -41,6 +41,22 @@ class QueryBuilder
 
     }
 
+    public function addFields(string $table, array $fields, array $datatypes)
+    {
+        $table_fields = array_map(fn($f, $d) => "[" . $f . "] " . $d, $fields, $datatypes);
+
+        return sprintf("ALTER TABLE [%s].[%s] ADD %s;", $this->schema, $table, implode(", ", $table_fields));
+
+    }
+
+    public function updateTable(string $table, array $fields)
+    {
+        $table_fields = array_map(fn($f) => "[" . $f . "] = ?", $fields);
+
+        return sprintf("UPDATE [%s].[%s] SET %s;", $this->schema, $table, implode(", ", $table_fields));
+
+    }
+
     public function dropTable(string $table)
     {
         return sprintf("IF (EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = '%s' AND  TABLE_NAME = '%s'))	DROP TABLE [%s].[%s];", $this->schema, $table, $this->schema, $table);

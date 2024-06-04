@@ -29,6 +29,8 @@ $sql['SAProwterminator'] = "\r\n";
 
 $path_csv = adjustPath($path_csv);
 $path_csv_processed = adjustPath($path_csv_processed);
+$path_csv_extensions = $path_csv_extensions ?? ['csv'];
+
 $path_SAP = adjustPath($path_SAP);
 $path_logs[CSV] = adjustPath($path_logs[CSV]);
 $path_logs[SAP] = adjustPath($path_logs[SAP]);

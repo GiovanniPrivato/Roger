@@ -29,6 +29,14 @@ class Roger
                 throw new Exception("File $file does not exist.");
             }
 
+            $fileInfo = [];
+
+            if (isset($sql["source_info"]) && $sql["source_info"]) {
+                $fileInfo['ROGER_SOURCE_NAME'] = pathinfo($file)['filename'];
+                $fileInfo['ROGER_SOURCE_DATE'] = date('Ymd H:i:s', filemtime($file));
+                $fileInfoDatatypes = ['ROGER_SOURCE_NAME' => 'varchar(255)', 'ROGER_SOURCE_DATE' => 'datetime'];
+            }
+
             $header = $this->getAndSanitizeHeader($file);
             list($SQLFloatConvert, $originalFieldTypes) = $this->getFieldDataTypes($file, $header);
 
@@ -93,7 +101,14 @@ class Roger
                 $selectInto_final_stmt = $qb->selectInto($temp_table, $table, $selectFields);
                 $this->conn->query($drop_final_stmt);
                 $this->conn->query($selectInto_final_stmt);
+            }
 
+            if ($fileInfo) {
+                $add_file_info_statement = $qb->addFields($table, array_keys($fileInfo), $fileInfoDatatypes);
+                $update_file_info_statement = $qb->updateTable($table, array_keys($fileInfo));
+                $this->conn->exec($add_file_info_statement);
+                $stmt = $this->conn->prepare($update_file_info_statement);
+                $stmt->execute(array_values($fileInfo));
             }
 
             $this->writeLog("FILE - $file", 'SUCCESS');
