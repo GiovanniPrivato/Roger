@@ -12,7 +12,7 @@ $sql["create_float_threshold"] = 0; //if =0 Roger skips float data type check an
 $sql["do_convert_leading_zeros"] = false; //if conversion threshold is >0 => if true Roger will attempt conversion to float values like 0100. If false, 0100 will remain varchar.
 $sql["batch_folder"] = "$_PATH/batch/"; //Roger will run each (if any) of the batch files available in the folder in sequential alphabetical order BEFORE any import (regardless import itself).
 $sql["sql_folder"] = "$_PATH/sql/"; //Roger will run each (if any) of the sql scripts available in the folder in sequential alphabetical order AFTER any import (if at least an import is done).
-$sql["source_info"] = true; //add file info fields to SQL table
+$sql["source_info"] = false; //add file info fields to SQL table
 
 //CSV PARAMS
 $path_csv = "$_PATH/csv/"; //csv files - use different folders to run in parallel
