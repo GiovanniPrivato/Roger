@@ -1,3 +1,6 @@
 release
 php_old
 encrypt-old
+release.zip
+vendor
+composer.lock

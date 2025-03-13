@@ -50,12 +50,12 @@ While (@@FETCH_STATUS = 0)
 			WHERE TABLE_SCHEMA = 'dbo' 
 			AND  TABLE_NAME = @final_table)) 
 			BEGIN
-				exec('SELECT * INTO ' + @final_table + ' from ' + @c_table)
+				exec('SELECT * INTO [' + @final_table + '] from [' + @c_table + ']')
 			END 
 			ELSE 
 			BEGIN
 				INSERT INTO @metaTable(FIELD_1, FIELD_2, FIELD_3, FIELD_4, FIELD_5)
-				exec('SELECT distinct ' + @field_1 + ',  ' + @field_2 + ', ' + @field_3 + ', ' + @field_4 + ', ' + @field_5 +' FROM ' + @c_table)
+				exec('SELECT distinct ' + @field_1 + ',  ' + @field_2 + ', ' + @field_3 + ', ' + @field_4 + ', ' + @field_5 +' FROM [' + @c_table + ']')
 
 			
 				SET @c_table_cursor = Cursor For
@@ -67,9 +67,9 @@ While (@@FETCH_STATUS = 0)
 				Into @c_field_1, @c_field_2, @c_field_3, @c_field_4, @c_field_5
 				While (@@FETCH_STATUS = 0)
 					BEGIN
-					exec('DELETE FROM ' + @final_table + ' WHERE ' + @field_1 + '= '''+ @c_field_1 + ''' AND ' + @field_2 + '='''+ @c_field_2 + ''' AND ' + @field_3 + '='''+ @c_field_3 + ''' AND ' + @field_4 + '='''+ @c_field_4 + ''' AND ' + @field_5 + '='''+ @c_field_5 + '''')
+					exec('DELETE FROM [' + @final_table + '] WHERE ' + @field_1 + '= '''+ @c_field_1 + ''' AND ' + @field_2 + '='''+ @c_field_2 + ''' AND ' + @field_3 + '='''+ @c_field_3 + ''' AND ' + @field_4 + '='''+ @c_field_4 + ''' AND ' + @field_5 + '='''+ @c_field_5 + '''')
 
-					exec('INSERT INTO ' + @final_table + ' SELECT * FROM ' + @c_table + ' WHERE ' + @field_1 + '= '''+ @c_field_1 + ''' AND ' + @field_2 + '='''+ @c_field_2 + ''' AND ' + @field_3 + '='''+ @c_field_3 + ''' AND ' + @field_4 + '='''+ @c_field_4 + ''' AND ' + @field_5 + '='''+ @c_field_5 + '''')
+					exec('INSERT INTO [' + @final_table + '] SELECT * FROM [' + @c_table + '] WHERE ' + @field_1 + '= '''+ @c_field_1 + ''' AND ' + @field_2 + '='''+ @c_field_2 + ''' AND ' + @field_3 + '='''+ @c_field_3 + ''' AND ' + @field_4 + '='''+ @c_field_4 + ''' AND ' + @field_5 + '='''+ @c_field_5 + '''')
 
 					Fetch Next From @c_table_cursor Into @c_field_1, @c_field_2, @c_field_3, @c_field_4, @c_field_5
 					END
@@ -78,7 +78,7 @@ While (@@FETCH_STATUS = 0)
 
 				delete from @metaTable	
 			END
-			exec('DROP TABLE ' + @c_table)
+			exec('DROP TABLE [' + @c_table + ']')
 		Fetch Next From @table_cursor Into @c_table
 	END
 

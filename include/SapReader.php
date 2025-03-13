@@ -15,15 +15,15 @@ class SapReader
     public function downloadData($protocol, $path, $params)
     {
         $this->header_downloaded = true;
-        $buffer = '';
-        $count = 0;
+        $buffer                  = '';
+        $count                   = 0;
 
         // init cURL
-        $ch = curl_init();
+        $ch            = curl_init();
         $protocolFinal = preg_replace_callback(
             '/@([^@]+)/i',
             function ($v) use (&$params, $protocol) {
-                if (!isset($params[$v[1]])) {
+                if (! isset($params[$v[1]])) {
                     throw new Exception("Missing $v[1] param for protocol $protocol");
                 }
                 return sprintf('&%s=%s', $v[1], $params[$v[1]]);
@@ -66,10 +66,10 @@ class SapReader
 
             $lines = explode("\r\n", $str);
 
-            $lines_num = sizeof($lines);
-            $lines[0] = $buffer . $lines[0]; //prefix the partial last line from last time.
-            $buffer = $lines[$lines_num - 1]; //last partial line.
-            $lines[$lines_num - 1] = ''; //empty string so to keep glue after.
+            $lines_num             = sizeof($lines);
+            $lines[0]              = $buffer . $lines[0];    //prefix the partial last line from last time.
+            $buffer                = $lines[$lines_num - 1]; //last partial line.
+            $lines[$lines_num - 1] = '';                     //empty string so to keep glue after.
 
             $strings = implode("\r\n", $lines);
 
@@ -97,7 +97,7 @@ class SapReader
     {
 
         if (strlen($this->header) > $header_size) {
-            $this->header = substr($this->header, 0, $header_size);
+            $this->header            = substr($this->header, 0, $header_size);
             $this->header_downloaded = true;
             preg_match('/\d{3}/', $this->header, $matches);
             $this->lastErrorCode = $matches[0];
@@ -114,7 +114,7 @@ class SapReader
         global $BC;
 
         $string = str_replace($sql['SAPfieldseparator'], '', $string); //gets rid of the TAB.
-        $string = preg_replace_callback('/(?:("?)((?:(?:(?:"")|[^"])*?.*?)*)(?:\1))(?:(' . $BC['fieldseparator'] . ')|\v)/im', function ($m) use ($sql) {
+        $string = preg_replace_callback('/(?:("?)((?:(?:(?:"")|[^"])*?.*?)*)(?:(?:(?<!")\1)|(?:\1\1\1)))(?:(' . $BC['fieldseparator'] . ')|\v)/im', function ($m) use ($sql) {
             return isset($m[3]) ? $m[2] . $sql['SAPfieldseparator'] : preg_replace('/"(.*)"/', "$1", $m[0]);
         }, $string);
 
