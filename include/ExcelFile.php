@@ -8,14 +8,16 @@ class ExcelFile
 
     private $file;
     private $fileName;
+    private $extension;
     private $data = [];
     private Logger $logger;
 
     public function __construct($file)
     {
-        $this->file     = $file;
-        $this->fileName = pathinfo($file)['filename'];
-        $this->logger   = new Logger(CSV);
+        $this->file      = $file;
+        $this->fileName  = pathinfo($file)['filename'];
+        $this->extension = pathinfo($file)['extension'];
+        $this->logger    = new Logger(CSV);
         if ($this->isExcelFile()) {
             $this->loadData();
         }
@@ -55,7 +57,7 @@ class ExcelFile
 
     public function isExcelFile()
     {
-        return in_array(pathinfo($this->file)['extension'], ['xlsx', 'xls']);
+        return in_array($this->extension, ['xlsx', 'xls']);
     }
 
     public function loadData()
@@ -88,8 +90,12 @@ class ExcelFile
     {
 
         $spreadsheet = PhpOffice\PhpSpreadsheet\IOFactory::load($this->file);
-        $data        = [];
-        $index       = [];
+        // $reader = PhpOffice\PhpSpreadsheet\IOFactory::createReader($this->extension);
+        // $reader->setReadDataOnly(true);
+        // $spreadsheet = $reader->load($this->file);
+
+        $data  = [];
+        $index = [];
 
         if (! isset($template['sheet'])) {
             return [];
@@ -129,7 +135,7 @@ class ExcelFile
 
         foreach ($sheetIndexes as $i) {
             $names       = $spreadsheet->getSheetNames();
-            $name        = $i['type'] == 'numeric' ? $i : $names[$i['index']];
+            $name        = $i['type'] == 'numeric' ? $i['index'] : $names[$i['index']];
             $data[$name] = ['sheetName' => $name, 'data' => $this->loadSheetData($spreadsheet, $template, $i['index']), 'template' => $template];
         }
 

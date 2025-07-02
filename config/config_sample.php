@@ -1,5 +1,5 @@
 <?php
-$_PATH = "C:\Users\GiovanniPrivato\Documents\Tecnico\php\Roger";
+$_PATH = "path/to/roger";
 
 //SQL PARAMS
 $sql["sql"]                      = "";              //SQL host
@@ -17,7 +17,7 @@ $sql["source_info"]              = false;           //add file info fields to SQ
 //CSV PARAMS
 $path_csv            = "$_PATH/csv/";           //csv files - use different folders to run in parallel
 $path_csv_processed  = "$_PATH/csv_processed/"; //csv processed files - use different folders to run in parallel
-$path_csv_extensions = ['csv', 'xlsx'];         //accepted extensions in csv folder - by default csv only
+$path_csv_extensions = ['csv'];                 //accepted extensions in csv folder - by default csv only
 
 //only valid if there is xlsx or xls files in csv extensions
 $excelTemplates = [

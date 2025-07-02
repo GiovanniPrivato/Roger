@@ -45,9 +45,12 @@ $excelTemplates = $excelTemplates ?? [];
 function adjustPath($path)
 {
     //if path is network, do not adjust it.
-    $slash = '/';
+    $slash        = '/';
+    $ending_slash = '/';
     if (preg_match("/^\\\\.+/", $path)) {
-        $slash = '\\';
+        $slash        = "\\/";
+        $ending_slash = '\\';
+        $path         = str_replace("/", "\\", $path);
     } else {
         $path = str_replace("\\", $slash, $path);
     }
@@ -56,7 +59,7 @@ function adjustPath($path)
     $file_parts = pathinfo($path);
 
     if (! isset($file_parts['extension']) || (isset($file_parts['extension']) && $file_parts['extension'] == null)) {
-        $path .= $slash;
+        $path .= $ending_slash;
     }
 
     return $path;
