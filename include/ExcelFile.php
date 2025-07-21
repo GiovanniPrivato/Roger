@@ -74,7 +74,7 @@ class ExcelFile
             try {
                 $sheetsData = $this->collectSheetsData($t, $index + 1);
                 if (! $sheetsData) {
-                    throw new Exception(sprintf('No data available in file %s from template %s and sheet %s', basename($this->fileName), $t['template'], $t['sheet']));
+                    throw new Exception(sprintf('No data available in file %s from template %s and sheet %s', basename($this->fileName), $t['template'], is_array($t['sheet']) ? implode(',', $t['sheet']) : $t['sheet']));
                 }
                 $this->data = array_merge($this->data, $sheetsData);
             } catch (Exception $e) {
@@ -90,9 +90,6 @@ class ExcelFile
     {
 
         $spreadsheet = PhpOffice\PhpSpreadsheet\IOFactory::load($this->file);
-        // $reader = PhpOffice\PhpSpreadsheet\IOFactory::createReader($this->extension);
-        // $reader->setReadDataOnly(true);
-        // $spreadsheet = $reader->load($this->file);
 
         $data  = [];
         $index = [];
@@ -102,9 +99,7 @@ class ExcelFile
         }
 
         //transforming indexes into array
-        if (! is_array($template['sheet'])) {
-            $index = [$template['sheet']];
-        }
+        $index = ! is_array($template['sheet']) ? [$template['sheet']] : $template['sheet'];
 
         $sheetIndexes = [];
 
