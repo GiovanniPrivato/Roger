@@ -4,12 +4,14 @@ include 'include/functions.php';
 include 'include/Logger.php';
 include 'include/ExcelFile.php';
 include 'include/Roger.php';
+include 'include/DirectoryScanner.php';
 
 $roger = new Roger($sql, CSV);
 //optionally runs batch files before.
 $roger->runBatchFiles();
 
-$files = glob(sprintf('%s*.{%s}', $path_csv, implode(",", $path_csv_extensions)), GLOB_BRACE);
+$ds    = new DirectoryScanner($path_csv);
+$files = $ds->scan(is_array($path_csv_extensions) ? $path_csv_extensions : [$path_csv_extensions]);
 
 if (! $files) {
     return;

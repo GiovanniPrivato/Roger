@@ -13,7 +13,7 @@ $sql["do_convert_leading_zeros"] = false;           //if conversion threshold is
 $sql["batch_folder"]             = "$_PATH/batch/"; //Roger will run each (if any) of the batch files available in the folder in sequential alphabetical order BEFORE any import (regardless import itself).
 $sql["sql_folder"]               = "$_PATH/sql/";   //Roger will run each (if any) of the sql scripts available in the folder in sequential alphabetical order AFTER any import (if at least an import is done).
 $sql["source_info"]              = false;           //add file info fields to SQL table
-
+$sql['timeout']                  = 300;             //SQL timeout in seconds
 //CSV PARAMS
 $path_csv            = "$_PATH/csv/";           //csv files - use different folders to run in parallel
 $path_csv_processed  = "$_PATH/csv_processed/"; //csv processed files - use different folders to run in parallel

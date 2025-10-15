@@ -371,8 +371,9 @@ class Roger
 
     private function connect()
     {
-        $this->conn = new PDO("sqlsrv:server=" . $this->sql['sql'] . ";Database = " . $this->sql['db'], $this->sql['user'], $this->sql['psw']);
+        $this->conn = new PDO("sqlsrv:server=" . $this->sql['sql'] . ";Database = " . $this->sql['db'] . ";TrustServerCertificate=true", $this->sql['user'], $this->sql['psw']);
         $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->conn->setAttribute(PDO::SQLSRV_ATTR_QUERY_TIMEOUT, $this->sql['timeout'] ?? 300); // 5 minutes
     }
 
     private function disconnect()

@@ -46,12 +46,12 @@ class DirectoryScanner
             $isDir = is_dir($path);
 
             if ($file === '.' || $file === '..' || (! $isDir && in_array(strtoupper(pathinfo($file)['filename']), $this->excluded))
-                || (! $isDir && $ext && ! in_array(strtoupper(pathinfo($file)['filename']), $ext))) {
+                || (! $isDir && $ext && ! in_array(strtoupper(pathinfo($file)['extension']), $ext))) {
                 continue; // Salta i riferimenti alla directory corrente e alla parent
             }
 
             if (is_dir($path)) {
-                $this->scanDirectory($path); // Ricorsione per le sottocartelle
+                $this->scanDirectory($path, $ext); // Ricorsione per le sottocartelle
             } else {
                 $this->fileList[] = $path; // Aggiungi il file alla lista
             }
