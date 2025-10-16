@@ -34,55 +34,48 @@ DECLARE @table_cursor Cursor,
 	AND TABLE_TYPE = 'BASE TABLE'
 	AND TABLE_NAME LIKE @table_name
 	AND TABLE_NAME <> @final_table
-
+	
+	CREATE TABLE #metaTable(META_FIELD_1 varchar(255), META_FIELD_2 varchar(255), META_FIELD_3 VARCHAR(255), META_FIELD_4 VARCHAR(255), META_FIELD_5 VARCHAR(255))
 
 	OPEN @table_cursor
 
 	Fetch Next From @table_cursor
 	Into @c_table
 
-While (@@FETCH_STATUS = 0)
-	BEGIN
-		
-			DECLARE @metaTable TABLE(FIELD_1 varchar(255), FIELD_2 varchar(255), FIELD_3 VARCHAR(255), FIELD_4 VARCHAR(255), FIELD_5 VARCHAR(255))
+	While (@@FETCH_STATUS = 0)
+		BEGIN
 			
-			IF (NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
-			WHERE TABLE_SCHEMA = 'dbo' 
-			AND  TABLE_NAME = @final_table)) 
-			BEGIN
-				exec('SELECT * INTO [' + @final_table + '] from [' + @c_table + ']')
-			END 
-			ELSE 
-			BEGIN
-				INSERT INTO @metaTable(FIELD_1, FIELD_2, FIELD_3, FIELD_4, FIELD_5)
-				exec('SELECT distinct ' + @field_1 + ',  ' + @field_2 + ', ' + @field_3 + ', ' + @field_4 + ', ' + @field_5 +' FROM [' + @c_table + ']')
+				IF (NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES 
+				WHERE TABLE_SCHEMA = 'dbo' 
+				AND  TABLE_NAME = @final_table)) 
+				BEGIN
+					exec('SELECT * INTO [' + @final_table + '] from [' + @c_table + ']')
+				END 
+				ELSE 
+				BEGIN
+					TRUNCATE TABLE #metaTable
+					
+					INSERT INTO #metaTable(META_FIELD_1, META_FIELD_2, META_FIELD_3, META_FIELD_4, META_FIELD_5)
+					exec('SELECT distinct ' + @field_1 + ',  ' + @field_2 + ', ' + @field_3 + ', ' + @field_4 + ', ' + @field_5 +' FROM [' + @c_table + ']')
 
-			
-				SET @c_table_cursor = Cursor For
-				SELECT * FROM @metaTable
+					SET @sql = N'DELETE F
+								FROM [' + @final_table + '] AS F
+								INNER JOIN #metaTable AS M
+									ON ' + @field_1 + ' = M.META_FIELD_1
+								AND ' + @field_2 + ' = M.META_FIELD_2
+								AND ' + @field_3 + ' = M.META_FIELD_3
+								AND ' + @field_4 + ' = M.META_FIELD_4
+								AND ' + @field_5 + ' = M.META_FIELD_5;
+							';
+							
+							EXEC sp_executesql @sql;
+							exec('INSERT INTO [' + @final_table + '] SELECT * FROM [' + @c_table + ']'
+				END
+				exec('DROP TABLE [' + @c_table + ']')
+			Fetch Next From @table_cursor Into @c_table
+		END
 
-				OPEN @c_table_cursor
-
-				Fetch Next From @c_table_cursor
-				Into @c_field_1, @c_field_2, @c_field_3, @c_field_4, @c_field_5
-				While (@@FETCH_STATUS = 0)
-					BEGIN
-					exec('DELETE FROM [' + @final_table + '] WHERE ' + @field_1 + '= '''+ @c_field_1 + ''' AND ' + @field_2 + '='''+ @c_field_2 + ''' AND ' + @field_3 + '='''+ @c_field_3 + ''' AND ' + @field_4 + '='''+ @c_field_4 + ''' AND ' + @field_5 + '='''+ @c_field_5 + '''')
-
-					exec('INSERT INTO [' + @final_table + '] SELECT * FROM [' + @c_table + '] WHERE ' + @field_1 + '= '''+ @c_field_1 + ''' AND ' + @field_2 + '='''+ @c_field_2 + ''' AND ' + @field_3 + '='''+ @c_field_3 + ''' AND ' + @field_4 + '='''+ @c_field_4 + ''' AND ' + @field_5 + '='''+ @c_field_5 + '''')
-
-					Fetch Next From @c_table_cursor Into @c_field_1, @c_field_2, @c_field_3, @c_field_4, @c_field_5
-					END
-				CLOSE @c_table_cursor 
-				DEALLOCATE @c_table_cursor
-
-				delete from @metaTable	
-			END
-			exec('DROP TABLE [' + @c_table + ']')
-		Fetch Next From @table_cursor Into @c_table
-	END
-
-	CLOSE @table_cursor 
-DEALLOCATE @table_cursor
+		CLOSE @table_cursor 
+	DEALLOCATE @table_cursor
 
 END
