@@ -59,6 +59,10 @@ class Roger
                     $bulk_insert_stmt = $qb->bulkInsert($temp_table, $file, $this->fieldseparator, $this->rowterminator);
                     $this->conn->exec($create_temp_stmt);
                     $this->conn->exec($bulk_insert_stmt);
+
+                    if (! $this->hasAtLeastTwoRows($file)) {
+                        $this->logger->writelog("FILE - $file - NO ROWS LOADED", 'WARNING');
+                    }
                     $mustRun = false; //to exit loop
 
                 } catch (Exception $e) {
@@ -343,6 +347,34 @@ class Roger
         fclose($f);
 
         return [$sql_convert, $field_type];
+    }
+
+    private function hasAtLeastTwoRows(string $file): bool
+    {
+        $handle = fopen($file, 'r');
+        if (! $handle) {
+            throw new RuntimeException("Cannot open file");
+        }
+
+        $buffer = '';
+        $count  = 0;
+
+        while (! feof($handle)) {
+            $buffer .= fread($handle, 4096);
+
+            while (($pos = strpos($buffer, $this->rowterminator)) !== false) {
+                $count++;
+                $buffer = substr($buffer, $pos + strlen($this->rowterminator));
+
+                if ($count >= 2) {
+                    fclose($handle);
+                    return true;
+                }
+            }
+        }
+
+        fclose($handle);
+        return false;
     }
 
     private function installTableConsolidation()
