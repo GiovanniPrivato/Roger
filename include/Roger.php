@@ -239,7 +239,7 @@ class Roger
         $headerLine = fgets($fn);
         fclose($fn);
 
-        $headerLine = str_replace("\r\n", "", $headerLine);
+        $headerLine = str_replace($this->rowterminator, "", $headerLine);
         $i          = 0;
         $regex      = $this->fieldseparator === "\t" ? '\t' : $this->fieldseparator;
 
