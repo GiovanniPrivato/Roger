@@ -148,7 +148,8 @@ class ExcelFile
         $lowestRow     = $template['start_row'] ?? 1;                        //last available row
         $highestColumn = $template['end_col'] ?? $sheet->getHighestColumn(); //last available col
         $highestRow    = $template['end_row'] ?? $sheet->getHighestRow();    //last available row
-        $rows          = $sheet->rangeToArray(
+
+        $rows = $sheet->rangeToArray(
             $lowestColumn . $lowestRow . ':' . $highestColumn . $highestRow, // The worksheet range that we want to retrieve
             null,                                                            // Value that should be returned for empty cells
             true,                                                            // Should formulas be calculated (the equivalent of getCalculatedValue() for each cell)
