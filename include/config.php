@@ -24,8 +24,16 @@ unset($theo_options['c']);
 include dirname(__DIR__) . '/config/' . $config_file . '.php';
 
 $auto_concat_procedure_name = 'roger_auto_consolidate_table';
+$unpivot_procedure_name     = 'roger_auto_unpivot_table';
 $sql["SAPfieldseparator"]   = "\t";
 $sql['SAProwterminator']    = "\r\n";
+
+if (! isset($activate_unpivot)) {
+    $activate_unpivot = false;
+}
+if (! isset($unpivot)) {
+    $unpivot = [];
+}
 
 $path_csv            = adjustPath($path_csv);
 $path_csv_processed  = adjustPath($path_csv_processed);

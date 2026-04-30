@@ -33,7 +33,9 @@ if ($protocols = getProtocols($BC['protocols_to_upload'], 0)) {
     if (isset($auto_concat) && $auto_concat) {
         $roger->autoConcat();
     }
-
+    if (isset($unpivot) && $unpivot) {
+        $roger->unpivot();
+    }
     $roger->runSQLStatements(); //optionally runs statements after.
 
 }

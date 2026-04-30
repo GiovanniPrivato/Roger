@@ -177,6 +177,62 @@ class Roger
 
     }
 
+    public function unpivot()
+    {
+        global $unpivot;
+        global $activate_unpivot;
+        global $unpivot_procedure_name;
+
+        if (! $activate_unpivot) {
+            return;
+        }
+
+        $this->installTableUnpivot();
+
+        try {
+            if (! is_array($unpivot)) {
+                throw new Exception('Unpivot param must be an array!');
+            }
+
+            foreach ($unpivot as $k => $up) {
+                $check = array_keys($up);
+                if (! in_array('table_to_unpivot_name', $check)) {
+                    throw new Exception(sprintf("Unpivot entry %d is missing '%s' parameter!", $k + 1, 'table_to_unpivot_name'));
+                }
+                if (! in_array('unpivot_field_like', $check)) {
+                    throw new Exception(sprintf("Unpivot entry %d is missing '%s' parameter!", $k + 1, 'unpivot_field_like'));
+                }
+                if (! in_array('unpivot_field_name', $check)) {
+                    throw new Exception(sprintf("Unpivot entry %d is missing '%s' parameter!", $k + 1, 'unpivot_field_name'));
+                }
+                if (! in_array('consolidate_to_table', $check)) {
+                    throw new Exception(sprintf("Unpivot entry %d is missing '%s' parameter!", $k + 1, 'unpivot_field_name'));
+                }
+                if (! is_array($up['additionalFields'])) {
+                    throw new Exception(sprintf("Unpivot entry %d parameter '%s' is not properly specified (must be array)!", $k + 1, 'additionalFields'));
+                }
+
+                $this->connect();
+                $qb               = new QueryBuilder();
+                $additionalFields = array_map(fn($a, $i) => sprintf('%s as %s', (is_string($a) || is_numeric($a)) ? $a : 'NULL', $i), $up['additionalFields'], array_keys($up['additionalFields']));
+                $additionalFieldsParam = sprintf("%s", implode(', ', $additionalFields));
+                $additionalFieldsParamWithQuotes = "'$additionalFieldsParam'";
+                $params           = [$up['table_to_unpivot_name'], $up['unpivot_field_like'], $up['unpivot_field_name'], $additionalFieldsParam, $up['consolidate_to_table'] ? 1 : 0];
+                $exec_statement   = $qb->execStoredProcedure($unpivot_procedure_name, $params, true);
+                $this->conn->exec($exec_statement);
+                $params           = [$up['table_to_unpivot_name'], $up['unpivot_field_like'], $up['unpivot_field_name'], $additionalFieldsParamWithQuotes, $up['consolidate_to_table'] ? 1 : 0];
+                $this->logger->writelog('PROCEDURE - Unpivot successful with params ' . implode(', ', $params), 'SUCCESS');
+
+            }
+
+        } catch (Exception $e) {
+            $this->logger->writelog('PROCEDURE - ' . $e->getMessage());
+        } finally {
+            $this->disconnect();
+        }
+
+    }
+
     public function runBatchFiles()
     {
         global $sql;
@@ -385,6 +441,25 @@ class Roger
             $this->connect();
             $qb        = new QueryBuilder();
             $statement = sprintf($procedure, $qb->schema, $auto_concat_procedure_name, $qb->schema, $auto_concat_procedure_name, $qb->schema, $auto_concat_procedure_name);
+            $commands  = $qb->splitSQLActions($statement); //clear multiline comments & split GO's
+            foreach ($commands as $c) {
+                $this->conn->exec($c);
+            }
+        } catch (Exception $e) {
+            $this->logger->writelog('PROCEDURE - ' . $e->getMessage(), );
+        } finally {
+            $this->disconnect();
+        }
+    }
+
+    private function installTableUnpivot()
+    {
+        global $unpivot_procedure_name;
+        $procedure = file_get_contents(__DIR__ . '/sql/unpivot_table.sql');
+        try {
+            $this->connect();
+            $qb        = new QueryBuilder();
+            $statement = sprintf($procedure, $qb->schema, $unpivot_procedure_name, $qb->schema, $unpivot_procedure_name, $qb->schema, $unpivot_procedure_name);
             $commands  = $qb->splitSQLActions($statement); //clear multiline comments & split GO's
             foreach ($commands as $c) {
                 $this->conn->exec($c);

@@ -48,5 +48,8 @@ foreach ($files as $file) {
 if (isset($auto_concat) && $auto_concat) {
     $roger->autoConcat();
 }
+if (isset($unpivot) && $unpivot) {
+    $roger->unpivot();
+}
 //optionally runs statements after.
 $roger->runSQLStatements();
