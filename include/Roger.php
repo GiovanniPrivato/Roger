@@ -47,12 +47,13 @@ class Roger
             $count_field_types = array_count_values($originalFieldTypes);
             $total_attempts    = isset($count_field_types['float']) ? $count_field_types['float'] + 1 : 1;
             //if error === false query is successful. Never go beyond total attempts.
+            $mustRun = true;
+
             do {
                 //create temp table or real table according to whether SQL checks are to be done eventually.
                 $temp_table = $SQLFloatConvert ? '#TEMP_' . $table . $attempts : $table;
 
                 try {
-                    $mustRun   = true;
                     $lastError = null;
                     $this->connect();
                     $create_temp_stmt = $qb->createTable($temp_table, $header, $originalFieldTypes, $SQLFloatConvert ? true : false);
@@ -162,10 +163,12 @@ class Roger
                 $qb             = new QueryBuilder();
                 $dummy_params   = array_fill(0, 5 - sizeof($ac['replace_field']), '1');
                 $fieldNames     = array_map(fn($f) => '[' . $this->cleanFieldName($f) . ']', $ac['replace_field']);
+                $useNames       = isset($ac['use_names']) && $ac['use_names'] ? 1 : 0;
                 $params         = [$ac['input_table_like'], $ac['final_table'], ...array_values($fieldNames)];
-                $exec_statement = $qb->execStoredProcedure($auto_concat_procedure_name, array_merge($params, $dummy_params), true);
+                $exec_statement = $qb->execStoredProcedure($auto_concat_procedure_name, array_merge($params, $dummy_params, [$useNames]), true);
                 $this->conn->exec($exec_statement);
-                $this->logger->writelog('PROCEDURE - Autoconcat successful with params ' . implode(', ', $params), 'SUCCESS');
+                $usingFieldsLog = $useNames ? ' using field names ' : ' positional ';
+                $this->logger->writelog('PROCEDURE - Autoconcat' . $usingFieldsLog . 'successful with params ' . implode(', ', $params), 'SUCCESS');
 
             }
 
@@ -213,14 +216,14 @@ class Roger
                 }
 
                 $this->connect();
-                $qb               = new QueryBuilder();
-                $additionalFields = array_map(fn($a, $i) => sprintf('%s as %s', (is_string($a) || is_numeric($a)) ? $a : 'NULL', $i), $up['additionalFields'], array_keys($up['additionalFields']));
-                $additionalFieldsParam = sprintf("%s", implode(', ', $additionalFields));
+                $qb                              = new QueryBuilder();
+                $additionalFields                = array_map(fn($a, $i) => sprintf('%s as %s', (is_string($a) || is_numeric($a)) ? $a : 'NULL', $i), $up['additionalFields'], array_keys($up['additionalFields']));
+                $additionalFieldsParam           = sprintf("%s", implode(', ', $additionalFields));
                 $additionalFieldsParamWithQuotes = "'$additionalFieldsParam'";
-                $params           = [$up['table_to_unpivot_name'], $up['unpivot_field_like'], $up['unpivot_field_name'], $additionalFieldsParam, $up['consolidate_to_table'] ? 1 : 0];
-                $exec_statement   = $qb->execStoredProcedure($unpivot_procedure_name, $params, true);
+                $params                          = [$up['table_to_unpivot_name'], $up['unpivot_field_like'], $up['unpivot_field_name'], $additionalFieldsParam, $up['consolidate_to_table'] ? 1 : 0];
+                $exec_statement                  = $qb->execStoredProcedure($unpivot_procedure_name, $params, true);
                 $this->conn->exec($exec_statement);
-                $params           = [$up['table_to_unpivot_name'], $up['unpivot_field_like'], $up['unpivot_field_name'], $additionalFieldsParamWithQuotes, $up['consolidate_to_table'] ? 1 : 0];
+                $params = [$up['table_to_unpivot_name'], $up['unpivot_field_like'], $up['unpivot_field_name'], $additionalFieldsParamWithQuotes, $up['consolidate_to_table'] ? 1 : 0];
                 $this->logger->writelog('PROCEDURE - Unpivot successful with params ' . implode(', ', $params), 'SUCCESS');
 
             }
@@ -267,25 +270,31 @@ class Roger
         }
 
         $qb = new QueryBuilder();
+        $this->connect();
 
         foreach ($scripts as $s) {
 
             try {
                 $content  = file_get_contents($s);
                 $commands = $qb->splitSQLActions($content); //clear multiline comments & split GO's
-                $this->connect();
                 foreach ($commands as $c) {
-                    $sql_result = $this->conn->query($c);
+                    // $sql_result = $this->conn->query($c);
+                    $stmt = $this->conn->prepare($c);
+                    $stmt->execute();
+
+                    while ($stmt->nextRowset()) {}
+
+                    $stmt->closeCursor();
+                    $stmt = null;
                 }
                 $this->logger->writelog("SCRIPT - " . basename($s), 'SUCCESS');
             } catch (Exception $e) {
                 $this->logger->writelog("SCRIPT - " . basename($s) . " - " . $e->getMessage());
-            } finally {
-                $sql_result = null;
-                $this->disconnect();
             }
 
         }
+
+        $this->disconnect();
 
     }
 

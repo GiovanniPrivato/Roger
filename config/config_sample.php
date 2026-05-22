@@ -53,6 +53,7 @@ $auto_concat          = [
     [
         'input_table_like' => 'input_%'  //imported table name LIKE condition
         , 'final_table' => 'FINAL_TABLE' //table to append data in
+        , 'use_names' => false           //use fields name to autoconcatenate or do it by field position
         , 'replace_field' => [           //fields to make comparison against => MAX 5 FIELDS
             'FIELD_1'
             , 'FIELD_2'
@@ -64,6 +65,7 @@ $auto_concat          = [
     [
         'input_table_like' => 'input2_%' //another (optional) condition set
         , 'final_table' => 'FINAL_TABLE2'
+        , 'use_names' => false//use fields name to autoconcatenate or do it by field position
         , 'replace_field' => [
             'FIELD_1'
             , 'FIELD_2',
